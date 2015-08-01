@@ -74,7 +74,7 @@ class CustomDockerSpawner(DockerSpawner):
     def start(self, image=None):
         """start the single-user server in a docker container"""
         tmp_dir = mkdtemp(suffix='everware')
-        yield self.git('clone', self.repo_url, tmp_dir)
+        yield self.git('clone', self.repo_url, tmp_dir, '--depth=1')
         # is this blocking?
         # use the username, git repo URL and HEAD commit sha to derive
         # the image name
