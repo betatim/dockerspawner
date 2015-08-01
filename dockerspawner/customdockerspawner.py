@@ -54,10 +54,8 @@ class CustomDockerSpawner(DockerSpawner):
         """
         return self.executor.submit(self._git, method, *args, **kwargs)
 
-    def get_state(self):
-        return {} #state = super(DockerSpawner, self).get_state()
-
     _escaped_repo_url = None
+
     @property
     def escaped_repo_url(self):
         if self._escaped_repo_url is None:
