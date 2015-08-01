@@ -17,7 +17,7 @@ import git
 
 class CustomDockerSpawner(DockerSpawner):
     def __init__(self, **kwargs):
-        self.repo_url = kwargs['repo']
+        self.repo_url = kwargs['repo_url']
         self.repo_sha = kwargs.get('last_commit', '')
         super(CustomDockerSpawner, self).__init__(**kwargs)
 
