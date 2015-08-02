@@ -1,4 +1,5 @@
 import pwd
+import os
 from tempfile import mkdtemp
 from datetime import timedelta
 
@@ -72,6 +73,7 @@ class CustomDockerSpawner(DockerSpawner):
 
     @gen.coroutine
     def start(self, image=None):
+        dockerfile_names = ['Dockerfile', '.nbrunnerdockerfile']
         """start the single-user server in a docker container"""
         tmp_dir = mkdtemp(suffix='everware')
         yield self.git('clone', self.repo_url, tmp_dir)
@@ -81,14 +83,18 @@ class CustomDockerSpawner(DockerSpawner):
         repo = git.Repo(tmp_dir)
         self.repo_sha = repo.rev_parse("HEAD")
 
+        dockerfile_list = [d for d in os.listdir(tmp_dir) if d in dockerfile_names]
+        assert len(dockerfile_list) > 0, "No Dockerfile is found at the repository {}".format(self.repo_url)
+        dockerfile = sorted(dockerfile_list)[-1]
         image_name = "everware/{}-{}-{}".format(self.user.name,
                                                 self.escaped_repo_url,
                                                 self.repo_sha)
-        self.log.debug("Building image {}".format(image_name))
+        self.log.debug("Building image {}, dockerfile: {}".format(image_name, dockerfile))
         build_log = yield gen.with_timeout(timedelta(30),
                                            self.docker('build',
                                                        path=tmp_dir,
                                                        tag=image_name,
+                                                       dockerfile=dockerfile,
                                                        rm=True)
         )
         self.log.debug("".join(str(line) for line in build_log))
